@@ -1,26 +1,16 @@
-import fs from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "data", "contacts.json");
+let contacts = []; // memory me hi save hoga, har deploy ke restart pe reset hoga
 
 export async function POST(req) {
-  const body = await req.json();
-  let contacts = [];
-
   try {
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    contacts = JSON.parse(fileData);
-  } catch (err) {
-    contacts = [];
+    const body = await req.json();
+    contacts.push(body);
+
+    return Response.json({ message: "✅ Saved successfully!", data: body });
+  } catch (error) {
+    return Response.json({ message: "❌ Failed to save", error: error.message }, { status: 500 });
   }
-
-  contacts.push(body);
-  fs.writeFileSync(filePath, JSON.stringify(contacts, null, 2));
-
-  return Response.json({ message: "✅ Saved successfully!" });
 }
 
-// ❌ GET ko hata do ya error return karo
 export async function GET() {
-  return Response.json({ error: "GET not allowed ❌" }, { status: 405 });
+  return Response.json({ contacts });
 }

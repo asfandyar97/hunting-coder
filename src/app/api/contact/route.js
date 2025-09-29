@@ -1,26 +1,14 @@
-import fs from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "data", "contacts.json");
-
-export async function POST(req) {
-  const body = await req.json();
-  let contacts = [];
-
-  try {
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    contacts = JSON.parse(fileData);
-  } catch (err) {
-    contacts = [];
+export default function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  contacts.push(body);
-  fs.writeFileSync(filePath, JSON.stringify(contacts, null, 2));
+  // POST request handle karo
+  const { name, email, message } = req.body;
 
-  return Response.json({ message: "✅ Saved successfully!" });
-}
-
-// ❌ GET ko hata do ya error return karo
-export async function GET() {
-  return Response.json({ error: "GET not allowed ❌" }, { status: 405 });
+  // Future me yaha database/email ka logic add kar sakte ho
+  res.status(200).json({
+    message: "Data received successfully ✅",
+    data: { name, email, message },
+  });
 }
