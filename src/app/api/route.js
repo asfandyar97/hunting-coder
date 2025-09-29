@@ -1,22 +1,26 @@
-// src/app/api/contact/route.js
+import fs from "fs";
+import path from "path";
 
-export async function GET() {
-  return Response.json({ message: "Contact API is working ✅" });
-}
+const filePath = path.join(process.cwd(), "data", "contacts.json");
 
 export async function POST(req) {
-  try {
-    const body = await req.json();
-    console.log("Received data:", body);
+  const body = await req.json();
+  let contacts = [];
 
-    return Response.json({
-      message: "Form submitted successfully!",
-      data: body,
-    });
-  } catch (error) {
-    return Response.json(
-      { message: "Something went wrong", error: error.message },
-      { status: 500 }
-    );
+  try {
+    const fileData = fs.readFileSync(filePath, "utf-8");
+    contacts = JSON.parse(fileData);
+  } catch (err) {
+    contacts = [];
   }
+
+  contacts.push(body);
+  fs.writeFileSync(filePath, JSON.stringify(contacts, null, 2));
+
+  return Response.json({ message: "✅ Saved successfully!" });
+}
+
+// ❌ GET ko hata do ya error return karo
+export async function GET() {
+  return Response.json({ error: "GET not allowed ❌" }, { status: 405 });
 }
